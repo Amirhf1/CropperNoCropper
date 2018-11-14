@@ -150,6 +150,18 @@ public class CropperView extends FrameLayout {
         return mImageView.getMaxZoom();
     }
 
+    public float getWidthZoom() {
+        return mImageView.getWidthZoom();
+    }
+
+    public float getBaseZoom() {
+        return mImageView.getBaseZoom();
+    }
+
+    public void disableMinZoom() {
+        mImageView.disableMinZoom();
+    }
+
     public float getMinZoom() {
         return mImageView.getMinZoom();
     }
@@ -160,6 +172,10 @@ public class CropperView extends FrameLayout {
 
     public void cropToCenter() {
         mImageView.cropToCenter();
+    }
+
+    public float getScaleFactor() {
+        return mImageView.getScaleFactor();
     }
 
     public void fitToCenter() {

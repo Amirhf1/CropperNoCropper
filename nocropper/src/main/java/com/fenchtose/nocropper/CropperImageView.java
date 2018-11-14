@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -36,6 +35,7 @@ public class CropperImageView extends ImageView {
     private float mMinZoom = 0;
     private float mMaxZoom = 0;
     private float mBaseZoom = 0;
+    private float mWidthZoom = 0;
     private float mBaseZoomBigger = 0;
 
     private float mFocusX;
@@ -157,6 +157,9 @@ public class CropperImageView extends ImageView {
                     mBaseZoomBigger = (float) (right - left) / Math.min(drawable.getIntrinsicHeight(),
                             drawable.getIntrinsicWidth());
                 } else {
+                    mWidthZoom = (float) (right - left) / Math.max(drawable.getIntrinsicHeight(),
+                            drawable.getIntrinsicWidth());
+
                     mBaseZoom = (float) (bottom - top) / Math.max(drawable.getIntrinsicHeight(),
                             drawable.getIntrinsicWidth());
 
@@ -298,12 +301,40 @@ public class CropperImageView extends ImageView {
 
         int min_dimen = Math.min(width, height);
         float scaleFactor = (float)min_dimen/(float)frameDimen;
-
         Matrix matrix = new Matrix();
         matrix.setScale(1f / scaleFactor, 1f / scaleFactor);
+
         matrix.postTranslate((frameDimen - width / scaleFactor) / 2,
                 (frameDimen - height / scaleFactor) / 2);
         setImageMatrix(matrix);
+    }
+
+    public float getScaleFactor() {
+        Drawable drawable = getDrawable();
+        int frameDimen = getWidth();
+        if (drawable == null) {
+            if (DEBUG) {
+                Log.e(TAG, "Drawable is null. I can't fit anything");
+            }
+            return 0;
+        }
+
+        if (frameDimen == 0) {
+            if (DEBUG) {
+                Log.e(TAG, "Frame Dimension is 0. I'm quite boggled by it.");
+            }
+            return 0;
+        }
+
+        int width = drawable.getIntrinsicWidth();
+        int height = drawable.getIntrinsicHeight();
+        if (DEBUG) {
+            Log.i(TAG, "drawable size: (" + width + " ," + height + ")");
+        }
+
+        int min_dimen = Math.min(width, height);
+        float scaleFactor = (float)min_dimen/(float)frameDimen;
+        return 1f / scaleFactor;
     }
 
     private void fitToCenter(Drawable drawable, int frameDimen) {
@@ -603,6 +634,18 @@ public class CropperImageView extends ImageView {
 
     public float getMinZoom() {
         return mMinZoom;
+    }
+
+    public float getWidthZoom() {
+        return mWidthZoom;
+    }
+
+    public float getBaseZoom() {
+        return mBaseZoom;
+    }
+
+    public void disableMinZoom() {
+        isMinZoomSetByUser = false;
     }
 
     public void setMinZoom(float zoom) {
